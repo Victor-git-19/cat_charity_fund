@@ -26,11 +26,6 @@ alembic upgrade head
 uvicorn app.main:app --reload
 ```
 
-## Тесты
-```bash
-pytest
-```
-
-API-документация: [Swagger UI](/docs) · [ReDoc](/redoc). Спецификация: [openapi.json](openapi.json).
+API-документация: [Swagger UI](http://127.0.0.1:8000/docs) · [ReDoc](http://127.0.0.1:8000/redoc)
 
 Автор: [Виктор Евгеньевич Смирнов](https://github.com/Victor-git-19)

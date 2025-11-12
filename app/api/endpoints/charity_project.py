@@ -33,7 +33,8 @@ async def create_charity_project(
         charity_project, session, commit=False
     )
     donations = await donation_crud.get_not_fully_invested(session)
-    investment(new_project, donations)
+    updated_donations = investment(new_project, donations)
+    session.add_all(updated_donations)
     await session.commit()
     await session.refresh(new_project)
     return new_project

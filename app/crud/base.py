@@ -44,10 +44,11 @@ class CRUDBase:
             obj_in_data['user_id'] = user.id
         db_obj = self.model(**obj_in_data)
         session.add(db_obj)
-        await session.flush()
         if commit:
             await session.commit()
             await session.refresh(db_obj)
+        else:
+            await session.flush()
         return db_obj
 
     async def update(

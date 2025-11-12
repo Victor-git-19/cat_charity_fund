@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from sqlalchemy import Boolean, CheckConstraint, Column, DateTime, Integer
-from sqlalchemy.orm import declared_attr
 
 from app.constants import DEFAULT_AMOUNT
 from app.core.db import Base
@@ -11,27 +10,17 @@ class InvestmentModel(Base):
     """Базовая модель для пожертвований и проектов."""
     __abstract__ = True
 
-    @declared_attr
-    def __table_args__(cls):
-        table = cls.__tablename__
-        return (
-            CheckConstraint(
-                'full_amount > 0',
-                name=f'ck_{table}_full_amount_positive',
-            ),
-            CheckConstraint(
-                'invested_amount >= 0',
-                name=f'ck_{table}_invested_amount_non_negative',
-            ),
-            CheckConstraint(
-                'invested_amount <= full_amount',
-                name=f'ck_{table}_invested_le_full_amount',
-            ),
-        )
-
-    full_amount = Column(Integer, nullable=False)
+    full_amount = Column(
+        Integer,
+        CheckConstraint('full_amount > 0'),
+        nullable=False,
+    )
     invested_amount = Column(
-        Integer, default=DEFAULT_AMOUNT, nullable=False
+        Integer,
+        CheckConstraint(
+            'invested_amount >= 0 AND invested_amount <= full_amount'),
+        default=DEFAULT_AMOUNT,
+        nullable=False,
     )
     fully_invested = Column(Boolean, default=False, nullable=False)
     create_date = Column(DateTime, default=datetime.now, nullable=False)

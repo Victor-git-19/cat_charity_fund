@@ -14,25 +14,19 @@ def investment(
     """
     updated_sources: List[InvestmentModel] = []
     for source in sources:
-        if target.fully_invested:
-            break
-
-        required = target.full_amount - target.invested_amount
-        available = source.full_amount - source.invested_amount
-        amount_to_invest = min(required, available)
-
-        if amount_to_invest <= 0:
-            continue
-
-        source.invested_amount += amount_to_invest
-        target.invested_amount += amount_to_invest
+        updated_sources.append(source)
+        amount_to_invest = min(
+            target.full_amount - target.invested_amount,
+            source.full_amount - source.invested_amount,
+        )
 
         for obj in (source, target):
+            obj.invested_amount += amount_to_invest
             if obj.invested_amount == obj.full_amount:
                 obj.fully_invested = True
-                if obj.close_date is None:
-                    obj.close_date = datetime.now()
+                obj.close_date = datetime.now()
 
-        updated_sources.append(source)
+        if target.fully_invested:
+            break
 
     return updated_sources
