@@ -1,40 +1,38 @@
 from datetime import datetime
-from typing import Union
+from typing import Iterable, List
 
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.models import CharityProject, Donation
+from app.models.abstract_model import InvestmentModel
 
 
-async def investment(
-    session: AsyncSession,
-    obj: Union[CharityProject, Donation]
-):
-    target = CharityProject if isinstance(obj, Donation) else Donation
+def investment(
+    target: InvestmentModel,
+    sources: Iterable[InvestmentModel],
+) -> List[InvestmentModel]:
+    """
+    Распределяет объекты sources по target в порядке FIFO.
+    Возвращает список источников, которые были изменены.
+    """
+    updated_sources: List[InvestmentModel] = []
+    for source in sources:
+        if target.fully_invested:
+            break
 
-    invest_models = await session.execute(
-        select(target).where(
-            target.fully_invested.is_(False)
-        ).order_by('create_date')
-    )
+        required = target.full_amount - target.invested_amount
+        available = source.full_amount - source.invested_amount
+        amount_to_invest = min(required, available)
 
-    for model in invest_models.scalars().all():
-        amount_to_donate = min(
-            model.full_amount - model.invested_amount,
-            obj.full_amount - obj.invested_amount
-        )
-        model.invested_amount += amount_to_donate
-        obj.invested_amount += amount_to_donate
+        if amount_to_invest <= 0:
+            continue
 
-        if model.invested_amount == model.full_amount:
-            model.fully_invested = True
-            model.close_date = datetime.now()
+        source.invested_amount += amount_to_invest
+        target.invested_amount += amount_to_invest
 
-        if obj.invested_amount == obj.full_amount:
-            obj.fully_invested = True
-            obj.close_date = datetime.now()
+        for obj in (source, target):
+            if obj.invested_amount == obj.full_amount:
+                obj.fully_invested = True
+                if obj.close_date is None:
+                    obj.close_date = datetime.now()
 
-    await session.commit()
-    await session.refresh(obj)
-    return obj
+        updated_sources.append(source)
+
+    return updated_sources

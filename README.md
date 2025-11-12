@@ -12,6 +12,8 @@ FastAPI-приложение для благотворительного фон�
 
 ## Подготовка окружения
 ```bash
+git clone https://github.com/Victor-git-19/cat_charity_fund.git
+cd cat_charity_fund
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
@@ -29,6 +31,6 @@ uvicorn app.main:app --reload
 pytest
 ```
 
-API-документация доступна по адресу `/docs` (Swagger) или `/redoc`. Спецификация находится в `openapi.json`.
+API-документация: [Swagger UI](/docs) · [ReDoc](/redoc). Спецификация: [openapi.json](openapi.json).
 
-Автор: Смирнов Вкиктор Евгеньевич
+Автор: [Виктор Евгеньевич Смирнов](https://github.com/Victor-git-19)

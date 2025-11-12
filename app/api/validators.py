@@ -4,6 +4,7 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.constants import INVESTED_AMOUNT
+from app.crud.charity_project import charity_project_crud
 from app.models.charity_project import CharityProject
 from app.schemas.charity_project import CharityProjectUpdate
 
@@ -13,7 +14,6 @@ async def check_charity_project_name_duplicate(
         session: AsyncSession,
 ) -> None:
     """Проверка уникальности имени проекта."""
-    from app.crud.charity_project import charity_project_crud
     project_id = await charity_project_crud.get_project_id_by_name(
         project_name, session
     )
@@ -24,21 +24,20 @@ async def check_charity_project_name_duplicate(
         )
 
 
-async def validate_charity_project_exists(
-        project: CharityProject,
-):
+def validate_charity_project_exists(project: CharityProject) -> CharityProject:
     """Проверка существования проекта в базе данных."""
     if project is None:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
             detail='Проект не найден!'
         )
+    return project
 
 
-async def validate_charity_project_update(
+def validate_charity_project_update(
         project: CharityProject,
         obj_in: CharityProjectUpdate
-):
+) -> None:
     """Валидация обновления проекта."""
     if project.fully_invested:
         raise HTTPException(
@@ -53,9 +52,9 @@ async def validate_charity_project_update(
         )
 
 
-async def validate_charity_project_delete(
+def validate_charity_project_delete(
         charity_project: CharityProject,
-):
+) -> None:
     """Валидация удаления проекта."""
     if charity_project.invested_amount > INVESTED_AMOUNT:
         raise HTTPException(
