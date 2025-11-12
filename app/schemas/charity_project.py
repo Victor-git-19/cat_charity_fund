@@ -1,7 +1,9 @@
-from pydantic import BaseModel, Field, Extra, PositiveInt, validator
-from typing import Optional
 from datetime import datetime
-from app.constants import MIN_LENGTH, MAX_LENGTH
+from typing import Optional
+
+from pydantic import BaseModel, Extra, Field, PositiveInt, validator
+
+from app.constants import MAX_LENGTH, MIN_LENGTH
 
 
 class CharityProjectCreate(BaseModel):
